@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
 import { loginRequest } from "@/services/authService"; // 👈 importa el servicio
-
+import axios from "axios";
 
 export default function LoginPage() {
   const { login } = useUser();
@@ -36,6 +36,7 @@ export default function LoginPage() {
       const data = await loginRequest(email, password); // 👈 usa el servicio Axios
       login(data.usuario, data.token); // 👈 asegúrate que sea 'usuario', no 'user'
     } catch (err: any) {
+      console.error("Error en login:", err.response);
       setError(err.response?.data?.message || "Error al iniciar sesión");
     } finally {
       setIsLoading(false);

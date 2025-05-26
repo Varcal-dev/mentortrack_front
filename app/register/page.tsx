@@ -1,15 +1,42 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
+const traducirRol = (rol: string) => {
+  switch (rol) {
+    case "student":
+      return "estudiante";
+    case "teacher":
+      return "docente";
+    case "coordinator":
+      return "coordinador";
+    default:
+      return rol;
+  }
+};
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -20,53 +47,134 @@ export default function RegisterPage() {
     confirmPassword: "",
     role: "",
     institution: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+    identification: "",
+    grade: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleRoleChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, role: value }))
-  }
+    setFormData((prev) => ({ ...prev, role: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
-    // Simulación de registro
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/login")
-    }, 1000)
-  }
+    const {
+      name,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      role,
+      institution,
+      identification,
+      grade,
+    } = formData;
+
+    // Validar campos requeridos
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!name || !lastName || !email || !role || !institution) {
+      alert("Por favor, completa todos los campos requeridos");
+      setIsLoading(false);
+      return;
+    }
+
+    // Construir el payload
+    const userData = {
+      nombre: name,
+      apellido: lastName,
+      email,
+      password,
+      rol: traducirRol(role),
+      institucion: institution,
+      identificacion: role === "student" ? identification : undefined,
+      grado: role === "student" ? grade : undefined,
+    };
+
+    // 🔍 Imprimir el JSON antes de enviarlo
+    console.log("Datos a enviar:", userData);
+
+    try {
+      await axios.post("http://localhost:5000/api/usuarios/register", {
+        nombre: name,
+        apellido: lastName,
+        email,
+        password,
+        rol: traducirRol(role),
+        institucion: institution,
+        identificacion: formData.identification || undefined,
+        grado: formData.grade || undefined,
+      });
+
+      alert("Usuario registrado correctamente");
+      router.push("/login");
+    } catch (error: any) {
+      console.error(error);
+      alert(
+        "Error al registrar usuario: " +
+          (error.response?.data?.message || "Error desconocido")
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Crear Cuenta</CardTitle>
-          <CardDescription>Completa el formulario para registrarte en el sistema</CardDescription>
+          <CardDescription>
+            Completa el formulario para registrarte en el sistema
+          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombres</Label>
-                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Apellidos</Label>
-                <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
-              <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -93,6 +201,31 @@ export default function RegisterPage() {
                 required
               />
             </div>
+            {formData.role === "student" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="identification">Identificación</Label>
+                  <Input
+                    id="identification"
+                    name="identification"
+                    value={formData.identification}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="grade">Grado</Label>
+                  <Input
+                    id="grade"
+                    name="grade"
+                    value={formData.grade}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -132,5 +265,5 @@ export default function RegisterPage() {
         </form>
       </Card>
     </div>
-  )
+  );
 }
