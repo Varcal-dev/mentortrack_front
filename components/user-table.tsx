@@ -1,41 +1,53 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@/components/ui/table"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
-import { MoreHorizontal, Eye, Pencil, Trash, Lock } from "lucide-react"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { MoreHorizontal, Eye, Pencil, Trash, Lock } from "lucide-react";
 
 interface User {
-  id: string
-  nombre: string
-  email: string
-  rol: string
-  institucion: string
-  status: "active" | "inactive"
-  createdAt: string
+  _id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+  institucion: string;
+  status: "active" | "inactive";
+  createdAt: string;
 }
-
 interface Props {
   users: User[]
+  // aquí falta onDeleteClick, agregamos:
+  onDeleteClick: (user: User) => void
 }
-
-export default function UserTable({ users }: Props) {
+export default function UserTable({ users, onDeleteClick }: Props) {
   const getRoleName = (role: string) => {
     switch (role) {
-      case "student": return "Estudiante"
-      case "teacher": return "Docente"
-      case "coordinator": return "Coordinador"
-      default: return role
+      case "student":
+        return "Estudiante";
+      case "teacher":
+        return "Docente";
+      case "coordinator":
+        return "Coordinador";
+      default:
+        return role;
     }
-  }
+  };
 
   const getInstitutionName = (institution: string) => {
-    return institution // Puedes adaptar si tienes una lista de instituciones
-  }
+    return institution; // Puedes adaptar si tienes una lista de instituciones
+  };
 
   return (
     <div className="rounded-md border">
@@ -54,23 +66,32 @@ export default function UserTable({ users }: Props) {
         <TableBody>
           {users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
+              <TableCell
+                colSpan={7}
+                className="text-center py-4 text-muted-foreground"
+              >
                 No se encontraron usuarios con los criterios seleccionados
               </TableCell>
             </TableRow>
           ) : (
             users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user._id}>
                 <TableCell className="font-medium">{user.nombre}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{getRoleName(user.rol)}</TableCell>
                 <TableCell>{getInstitutionName(user.institucion)}</TableCell>
                 <TableCell>
-                  <Badge variant={user.status === "active" ? "default" : "destructive"}>
+                  <Badge
+                    variant={
+                      user.status === "active" ? "default" : "destructive"
+                    }
+                  >
                     {user.status === "active" ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -81,13 +102,19 @@ export default function UserTable({ users }: Props) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/users/${user.id}`} className="flex items-center cursor-pointer">
+                        <Link
+                          href={`/users/${user._id}`}
+                          className="flex items-center cursor-pointer"
+                        >
                           <Eye className="mr-2 h-4 w-4" />
                           <span>Ver detalles</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/users/${user.id}/edit`} className="flex items-center cursor-pointer">
+                        <Link
+                          href={`/users/${user._id}/edit`}
+                          className="flex items-center cursor-pointer"
+                        >
                           <Pencil className="mr-2 h-4 w-4" />
                           <span>Editar</span>
                         </Link>
@@ -96,7 +123,10 @@ export default function UserTable({ users }: Props) {
                         <Lock className="mr-2 h-4 w-4" />
                         <span>Restablecer contraseña</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-center text-destructive cursor-pointer">
+                      <DropdownMenuItem
+                        className="flex items-center text-destructive cursor-pointer"
+                        onClick={() => onDeleteClick(user)}
+                      >
                         <Trash className="mr-2 h-4 w-4" />
                         <span>Eliminar</span>
                       </DropdownMenuItem>
@@ -109,5 +139,5 @@ export default function UserTable({ users }: Props) {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

@@ -24,15 +24,21 @@ import {
 } from "@/components/ui/dialog";
 import UserTable from "@/components/user-table";
 import axios from "axios";
+import DeleteUserModal from "@/components/form/DeleteUserModal";
 
 interface User {
-  id: string;
+  _id: string;
   nombre: string;
   email: string;
   rol: string;
   institucion: string;
   status: "active" | "inactive";
   createdAt: string;
+}
+
+interface UserTableProps {
+  users: User[];
+  onDeleteClick: (user: User) => void;
 }
 
 export default function UsersPage() {
@@ -60,17 +66,47 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const openDeleteModal = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setUserToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+   try {
+    const token = localStorage.getItem("token") // O desde donde lo guardes
+    await axios.delete(`http://localhost:5000/api/users/${userToDelete._id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    setUsers((prev) => prev.filter((u) => u._id !== userToDelete._id))
+  }  catch (err) {
+      console.error("Error eliminando usuario:", err);
+    } finally {
+      closeDeleteModal();
+    }
+  };
+
   const filteredUsers = users.filter((user) => {
-  const matchesSearch = (user.nombre ?? "")
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase());
+    const matchesSearch = (user.nombre ?? "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
 
-  const matchesRole = filterRole === "all" || user.rol === filterRole;
-  const matchesInstitution =
-    filterInstitution === "all" || user.institucion === filterInstitution;
+    const matchesRole = filterRole === "all" || user.rol === filterRole;
+    const matchesInstitution =
+      filterInstitution === "all" || user.institucion === filterInstitution;
 
-  return matchesSearch && matchesRole && matchesInstitution;
-});
+    return matchesSearch && matchesRole && matchesInstitution;
+  });
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -132,7 +168,7 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      <UserTable users={filteredUsers} />
+      <UserTable users={filteredUsers} onDeleteClick={openDeleteModal} />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
@@ -145,6 +181,13 @@ export default function UsersPage() {
           <UserRegisterForm onSuccess={() => setOpen(false)} />
         </DialogContent>
       </Dialog>
+
+      <DeleteUserModal
+        open={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteUser}
+        userName={userToDelete?.nombre ?? ""}
+      />
     </div>
   );
 }
