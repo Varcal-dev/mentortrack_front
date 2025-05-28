@@ -25,15 +25,18 @@ import {
 import UserTable from "@/components/user-table";
 import axios from "axios";
 import DeleteUserModal from "@/components/form/DeleteUserModal";
+import EditUserModal from "@/components/form/EditUserModal";
 
 interface User {
   _id: string;
   nombre: string;
+  apellido: string;
   email: string;
   rol: string;
   institucion: string;
   status: "active" | "inactive";
   createdAt: string;
+  [key: string]: any;
 }
 
 interface UserTableProps {
@@ -81,19 +84,38 @@ export default function UsersPage() {
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
-   try {
-    const token = localStorage.getItem("token") // O desde donde lo guardes
-    await axios.delete(`http://localhost:5000/api/users/${userToDelete._id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    setUsers((prev) => prev.filter((u) => u._id !== userToDelete._id))
-  }  catch (err) {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `http://localhost:5000/api/users/${userToDelete._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUsers((prev) => prev.filter((u) => u._id !== userToDelete._id));
+    } catch (err) {
       console.error("Error eliminando usuario:", err);
     } finally {
       closeDeleteModal();
     }
+  };
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+
+  // Función para abrir el modal de edición
+  const openEditModal = (user: User) => {
+    setUserToEdit(user);
+    setEditModalOpen(true);
+  };
+
+  // Función para actualizar el usuario en la lista
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+    );
   };
 
   const filteredUsers = users.filter((user) => {
@@ -168,7 +190,11 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      <UserTable users={filteredUsers} onDeleteClick={openDeleteModal} />
+      <UserTable
+        users={users}
+        onDeleteClick={openDeleteModal} // ya lo tenías
+        onEditClick={openEditModal} // <-- este es nuevo
+      />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
@@ -188,6 +214,15 @@ export default function UsersPage() {
         onConfirm={handleDeleteUser}
         userName={userToDelete?.nombre ?? ""}
       />
+
+      {userToEdit && (
+        <EditUserModal
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          user={userToEdit}
+          onUserUpdated={handleUserUpdated}
+        />
+      )}
     </div>
   );
 }

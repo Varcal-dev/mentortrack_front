@@ -20,6 +20,7 @@ import { MoreHorizontal, Eye, Pencil, Trash, Lock } from "lucide-react";
 interface User {
   _id: string;
   nombre: string;
+  apellido: string;
   email: string;
   rol: string;
   institucion: string;
@@ -27,11 +28,12 @@ interface User {
   createdAt: string;
 }
 interface Props {
-  users: User[]
+  users: User[];
   // aquí falta onDeleteClick, agregamos:
-  onDeleteClick: (user: User) => void
+  onDeleteClick: (user: User) => void;
+  onEditClick: (user: User) => void; 
 }
-export default function UserTable({ users, onDeleteClick }: Props) {
+export default function UserTable({ users, onDeleteClick, onEditClick }: Props) {
   const getRoleName = (role: string) => {
     switch (role) {
       case "student":
@@ -110,14 +112,12 @@ export default function UserTable({ users, onDeleteClick }: Props) {
                           <span>Ver detalles</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/users/${user._id}/edit`}
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          <span>Editar</span>
-                        </Link>
+                      <DropdownMenuItem
+                        className="flex items-center cursor-pointer"
+                        onClick={() => onEditClick(user)}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        <span>Editar</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem className="flex items-center cursor-pointer">
                         <Lock className="mr-2 h-4 w-4" />
