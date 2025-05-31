@@ -55,6 +55,7 @@ export function ProjectTable({
   filterStatus,
   filterInstitution,
 }: ProjectTableProps) {
+  
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,9 +130,9 @@ export function ProjectTable({
 
   // Filtrar proyectos según los criterios
   const filteredProjects = proyectos.filter((proyecto) => {
-    const matchesSearch = proyecto.titulo
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()); // ||      proyecto.teacher.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          proyecto.creador.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          proyecto.creador.apellido.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesArea = filterArea === "" || proyecto.area === filterArea;
     const matchesStatus =
       filterStatus === "" || proyecto.estado === filterStatus;
@@ -142,38 +143,6 @@ export function ProjectTable({
 
     return matchesSearch && matchesArea && matchesStatus && matchesInstitution;
   });
-
-  // Función para obtener el nombre legible del área
-  const getAreaName = (area: string) => {
-    switch (area) {
-      case "ciencias":
-        return "Ciencias";
-      case "tecnologia":
-        return "Tecnología";
-      case "matematicas":
-        return "Matemáticas";
-      case "sociales":
-        return "Ciencias Sociales";
-      case "artes":
-        return "Artes";
-      default:
-        return area;
-    }
-  };
-
-  // Función para obtener el nombre legible de la institución
-  const getInstitutionName = (institution: string) => {
-    switch (institution) {
-      case "colegio1":
-        return "Colegio San José";
-      case "colegio2":
-        return "Instituto Técnico";
-      case "colegio3":
-        return "Liceo Moderno";
-      default:
-        return institution;
-    }
-  };
 
   return (
     <Card>
