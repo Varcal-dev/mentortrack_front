@@ -226,6 +226,3 @@ export default function UsersPage() {
     </div>
   );
 }
-function setUsers(data: any) {
-  throw new Error("Function not implemented.");
-}

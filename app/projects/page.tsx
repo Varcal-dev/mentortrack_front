@@ -20,9 +20,10 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Proyectos</h2>
         <div className="flex gap-2">
+          {/*
           <Button variant="outline" className="gap-1">
             <FileDown className="h-4 w-4" /> Exportar PDF
-          </Button>
+          </Button>*/}
           <Button asChild>
             <Link href="/projects/new" className="flex items-center gap-1">
               <Plus className="h-4 w-4" /> Nuevo Proyecto
