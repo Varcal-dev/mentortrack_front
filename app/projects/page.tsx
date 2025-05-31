@@ -1,19 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ProjectTable } from "@/components/project-table"
-import { Plus, Search, FileDown } from "lucide-react"
-import Link from "next/link"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProjectTable } from "@/components/project-table";
+import { Plus, Search, FileDown } from "lucide-react";
+import Link from "next/link";
 
 export default function ProjectsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterArea, setFilterArea] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [filterInstitution, setFilterInstitution] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterArea, setFilterArea] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterInstitution, setFilterInstitution] = useState("all");
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -75,8 +81,11 @@ export default function ProjectsPage() {
                 <SelectItem value="finalizado">Finalizado</SelectItem>
               </SelectContent>
             </Select>
-
-            <Select value={filterInstitution} onValueChange={setFilterInstitution}>
+            {/*
+            <Select
+              value={filterInstitution}
+              onValueChange={setFilterInstitution}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Institución" />
               </SelectTrigger>
@@ -86,7 +95,7 @@ export default function ProjectsPage() {
                 <SelectItem value="colegio2">Instituto Técnico</SelectItem>
                 <SelectItem value="colegio3">Liceo Moderno</SelectItem>
               </SelectContent>
-            </Select>
+            </Select>*/}
           </div>
         </CardContent>
       </Card>
@@ -98,5 +107,5 @@ export default function ProjectsPage() {
         filterInstitution={filterInstitution}
       />
     </div>
-  )
+  );
 }

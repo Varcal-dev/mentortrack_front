@@ -19,6 +19,11 @@ import {
 import { MoreHorizontal, FileDown, Eye, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 
 interface ProjectTableProps {
   searchTerm: string;
@@ -36,7 +41,11 @@ interface Proyecto {
     nombre: string;
   };
   estado: string;
-  creador: string;
+  creador: {
+    _id: string;
+    nombre: string;
+    apellido: string;
+  };
   createdAt: string;
 }
 
@@ -63,8 +72,7 @@ export function ProjectTable({
 
         // Adjust the data here
         const adjustedData = data.map((project: any) => ({
-          ...project,
-          creador: project.creador ? project.creador.nombre : "", // Extract creator's name
+          ...project, // Extract creator's name
         }));
 
         setProyectos(adjustedData);
@@ -76,6 +84,33 @@ export function ProjectTable({
 
     fetchProyectos();
   }, []);
+
+  const handleCambiarEstado = async (id: string, estado: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `http://localhost:5000/api/proyectos/${id}/estado`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ estado }),
+        }
+      );
+
+      if (res.ok) {
+        setProyectos((prev) =>
+          prev.map((p) => (p._id === id ? { ...p, estado } : p))
+        );
+      } else {
+        console.error("Error cambiando estado");
+      }
+    } catch (error) {
+      console.error("Error cambiando estado", error);
+    }
+  };
 
   const getBadgeVariant = (estado: string) => {
     switch (estado.toLowerCase()) {
@@ -94,13 +129,16 @@ export function ProjectTable({
 
   // Filtrar proyectos según los criterios
   const filteredProjects = proyectos.filter((proyecto) => {
-    const matchesSearch =
-      proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase());// ||      proyecto.teacher.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = proyecto.titulo
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase()); // ||      proyecto.teacher.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesArea = filterArea === "" || proyecto.area === filterArea;
     const matchesStatus =
       filterStatus === "" || proyecto.estado === filterStatus;
     const matchesInstitution =
-      filterInstitution === "" || (proyecto.institucion && proyecto.institucion.nombre === filterInstitution);
+      filterInstitution === "" ||
+      (proyecto.institucion &&
+        proyecto.institucion.nombre === filterInstitution);
 
     return matchesSearch && matchesArea && matchesStatus && matchesInstitution;
   });
@@ -147,7 +185,7 @@ export function ProjectTable({
               <TableHead>Área</TableHead>
               <TableHead>Institución</TableHead>
               <TableHead>Estado</TableHead>
-              {/*<TableHead>Docente</TableHead>*/}
+              <TableHead>Docente</TableHead>
               <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -169,13 +207,18 @@ export function ProjectTable({
                     {project.titulo}
                   </TableCell>
                   <TableCell>{project.area}</TableCell>
-                  <TableCell>{project.institucion ? project.institucion.nombre : "N/A"}</TableCell>
+                  <TableCell>
+                    {project.institucion ? project.institucion.nombre : "N/A"}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={getBadgeVariant(project.estado)}>
                       {project.estado}
                     </Badge>
                   </TableCell>
-                  {/*<TableCell>{project.creador}</TableCell>*/}
+                  <TableCell>
+                    Prof:{" "}
+                    {project.creador.nombre ? project.creador.nombre : "N/A"}
+                  </TableCell>
                   <TableCell>
                     {new Date(project.createdAt).toLocaleDateString()}
                   </TableCell>
@@ -206,6 +249,31 @@ export function ProjectTable({
                             <span>Editar</span>
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            Cambiar estado
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
+                            {[
+                              "formulación",
+                              "evaluacion",
+                              "activo",
+                              "finalizado",
+                              "inactivo",
+                            ].map((estado) => (
+                              <DropdownMenuItem
+                                key={estado}
+                                onClick={() =>
+                                  handleCambiarEstado(project._id, estado)
+                                }
+                              >
+                                {estado.charAt(0).toUpperCase() +
+                                  estado.slice(1)}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+
                         <DropdownMenuItem className="flex items-center cursor-pointer">
                           <FileDown className="mr-2 h-4 w-4" />
                           <span>Exportar PDF</span>

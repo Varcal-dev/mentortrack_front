@@ -51,7 +51,8 @@ export default function NewProjectPage() {
     institucion: "",
     objetivos: "",
     observaciones: "",
-    cronograma: "",
+    detallesCronograma: "",
+    detallesPresupuesto: "",
     presupuesto: "",
     fechaInicio: "",
     fechaFin: "",
@@ -297,12 +298,12 @@ export default function NewProjectPage() {
                 <Label htmlFor="schedule-details">Detalle del Cronograma</Label>
                 <Textarea
                   id="schedule-details"
-                  value={formData.cronograma}
+                  value={formData.detallesCronograma}
                   onChange={(e) =>
-                    setFormData({ ...formData, cronograma: e.target.value })
+                    setFormData({ ...formData, detallesCronograma: e.target.value })
                   }
                   placeholder="Describe las actividades y fechas importantes"
-                  className="min-h-[150px]"
+                  className="min-h-[100px]"
                   required
                 />
               </div>
@@ -333,10 +334,15 @@ export default function NewProjectPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="budget-details">Detalle del Presupuesto</Label>
+                
                 <Textarea
                   id="budget-details"
+                  value={formData.detallesPresupuesto}
+                  onChange={(e) =>
+                    setFormData({ ...formData, detallesPresupuesto: e.target.value })
+                  }
                   placeholder="Describe los recursos y costos asociados"
-                  className="min-h-[150px]"
+                  className="min-h-[100px]"
                   required
                 />
               </div>
