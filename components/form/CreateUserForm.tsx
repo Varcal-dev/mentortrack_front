@@ -1,7 +1,7 @@
 // components/UserRegisterForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -33,6 +33,11 @@ interface Props {
   onSuccess?: () => void;
 }
 
+interface Institucion {
+  _id: string;
+  nombre: string;
+}
+
 export default function UserRegisterForm({ onSuccess }: Props) {
   const [formData, setFormData] = useState({
     name: "",
@@ -45,6 +50,32 @@ export default function UserRegisterForm({ onSuccess }: Props) {
     identification: "",
     grade: "",
   });
+
+  const [instituciones, setInstituciones] = useState<Institucion[]>([]);
+  const [institucionSeleccionada, setInstitucionSeleccionada] =
+    useState<string>("");
+
+  useEffect(() => {
+    const fetchInstituciones = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:5000/api/instituciones", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Error al obtener instituciones");
+        }
+        const data = await res.json();
+        setInstituciones(data);
+      } catch (err) {
+        console.error("Error al cargar instituciones", err);
+      }
+    };
+
+    fetchInstituciones();
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -166,13 +197,18 @@ export default function UserRegisterForm({ onSuccess }: Props) {
 
       <div className="space-y-2">
         <Label htmlFor="institution">Institución</Label>
-        <Input
-          id="institution"
-          name="institution"
-          value={formData.institution}
-          onChange={handleChange}
-          required
-        />
+        <Select onValueChange={(value) => setFormData({...formData, institution: value})} required>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecciona una institución" />
+          </SelectTrigger>
+          <SelectContent>
+            {instituciones.map((institucion) => (
+              <SelectItem key={institucion._id} value={institucion._id}>
+                {institucion.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       {formData.role === "student" && (
         <>
