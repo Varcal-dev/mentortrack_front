@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes"
 import { UserProvider } from "./context/UserContext"; // Asegúrate de que la ruta sea correcta
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 export const metadata: Metadata = {

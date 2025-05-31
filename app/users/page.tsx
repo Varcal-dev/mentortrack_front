@@ -55,7 +55,7 @@ export default function UsersPage() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get<User[]>("http://localhost:5000/api/users", {
+        const res = await axios.get<User[]>("http://localhost:5000/api/usuarios", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

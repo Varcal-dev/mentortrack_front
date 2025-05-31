@@ -1,112 +1,141 @@
-"use client"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, FileDown, Eye, Pencil, Trash } from "lucide-react"
-import Link from "next/link"
+"use client";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, FileDown, Eye, Pencil, Trash } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface ProjectTableProps {
-  searchTerm: string
-  filterArea: string
-  filterStatus: string
-  filterInstitution: string
+  searchTerm: string;
+  filterArea: string;
+  filterStatus: string;
+  filterInstitution: string;
 }
 
-export function ProjectTable({ searchTerm, filterArea, filterStatus, filterInstitution }: ProjectTableProps) {
-  // Simulación de datos de proyectos
-  const projects = [
-    {
-      id: "1",
-      title: "Impacto de la Contaminación en Ecosistemas Locales",
-      area: "ciencias",
-      status: "activo",
-      institution: "colegio1",
-      createdAt: "2023-05-15",
-      teacher: "Prof. María González",
-    },
-    {
-      id: "2",
-      title: "Aplicación Móvil para Aprendizaje de Matemáticas",
-      area: "tecnologia",
-      status: "evaluacion",
-      institution: "colegio2",
-      createdAt: "2023-06-20",
-      teacher: "Prof. Juan Pérez",
-    },
-    {
-      id: "3",
-      title: "Historia Oral de la Comunidad Local",
-      area: "sociales",
-      status: "finalizado",
-      institution: "colegio3",
-      createdAt: "2023-04-10",
-      teacher: "Prof. Ana Rodríguez",
-    },
-    {
-      id: "4",
-      title: "Robótica Educativa para Niños",
-      area: "tecnologia",
-      status: "activo",
-      institution: "colegio1",
-      createdAt: "2023-07-05",
-      teacher: "Prof. Carlos Martínez",
-    },
-    {
-      id: "5",
-      title: "Huerto Escolar Sostenible",
-      area: "ciencias",
-      status: "inactivo",
-      institution: "colegio2",
-      createdAt: "2023-03-25",
-      teacher: "Prof. Laura Sánchez",
-    },
-  ]
+interface Proyecto {
+  _id: string;
+  titulo: string;
+  area: string;
+  institucion: {
+    _id: string;
+    nombre: string;
+  };
+  estado: string;
+  creador: string;
+  createdAt: string;
+}
+
+export function ProjectTable({
+  searchTerm,
+  filterArea,
+  filterStatus,
+  filterInstitution,
+}: ProjectTableProps) {
+  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProyectos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:5000/api/proyectos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Error al obtener proyectos");
+        const data = await res.json();
+
+        // Adjust the data here
+        const adjustedData = data.map((project: any) => ({
+          ...project,
+          creador: project.creador ? project.creador.nombre : "", // Extract creator's name
+        }));
+
+        setProyectos(adjustedData);
+      } catch (err) {
+        console.error(err);
+        setError("Error al cargar proyectos");
+      }
+    };
+
+    fetchProyectos();
+  }, []);
+
+  const getBadgeVariant = (estado: string) => {
+    switch (estado.toLowerCase()) {
+      case "activo":
+        return "default";
+      case "finalizado":
+        return "secondary";
+      case "inactivo":
+        return "destructive";
+      case "evaluacion":
+        return "default";
+      default:
+        return "outline";
+    }
+  };
 
   // Filtrar proyectos según los criterios
-  const filteredProjects = projects.filter((project) => {
+  const filteredProjects = proyectos.filter((proyecto) => {
     const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.teacher.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesArea = filterArea === "" || project.area === filterArea
-    const matchesStatus = filterStatus === "" || project.status === filterStatus
-    const matchesInstitution = filterInstitution === "" || project.institution === filterInstitution
+      proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase());// ||      proyecto.teacher.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesArea = filterArea === "" || proyecto.area === filterArea;
+    const matchesStatus =
+      filterStatus === "" || proyecto.estado === filterStatus;
+    const matchesInstitution =
+      filterInstitution === "" || (proyecto.institucion && proyecto.institucion.nombre === filterInstitution);
 
-    return matchesSearch && matchesArea && matchesStatus && matchesInstitution
-  })
+    return matchesSearch && matchesArea && matchesStatus && matchesInstitution;
+  });
 
   // Función para obtener el nombre legible del área
   const getAreaName = (area: string) => {
     switch (area) {
       case "ciencias":
-        return "Ciencias"
+        return "Ciencias";
       case "tecnologia":
-        return "Tecnología"
+        return "Tecnología";
       case "matematicas":
-        return "Matemáticas"
+        return "Matemáticas";
       case "sociales":
-        return "Ciencias Sociales"
+        return "Ciencias Sociales";
       case "artes":
-        return "Artes"
+        return "Artes";
       default:
-        return area
+        return area;
     }
-  }
+  };
 
   // Función para obtener el nombre legible de la institución
   const getInstitutionName = (institution: string) => {
     switch (institution) {
       case "colegio1":
-        return "Colegio San José"
+        return "Colegio San José";
       case "colegio2":
-        return "Instituto Técnico"
+        return "Instituto Técnico";
       case "colegio3":
-        return "Liceo Moderno"
+        return "Liceo Moderno";
       default:
-        return institution
+        return institution;
     }
-  }
+  };
 
   return (
     <Card>
@@ -118,51 +147,38 @@ export function ProjectTable({ searchTerm, filterArea, filterStatus, filterInsti
               <TableHead>Área</TableHead>
               <TableHead>Institución</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Docente</TableHead>
+              {/*<TableHead>Docente</TableHead>*/}
               <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProjects.length === 0 ? (
+            {proyectos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
-                  No se encontraron proyectos con los criterios seleccionados
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-4 text-muted-foreground"
+                >
+                  {error || "No hay proyectos disponibles"}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredProjects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="font-medium">{project.title}</TableCell>
-                  <TableCell>{getAreaName(project.area)}</TableCell>
-                  <TableCell>{getInstitutionName(project.institution)}</TableCell>
+              proyectos.map((project) => (
+                <TableRow key={project._id}>
+                  <TableCell className="font-medium">
+                    {project.titulo}
+                  </TableCell>
+                  <TableCell>{project.area}</TableCell>
+                  <TableCell>{project.institucion ? project.institucion.nombre : "N/A"}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        project.status === "activo"
-                          ? "default"
-                          : project.status === "finalizado"
-                            ? "success"
-                            : project.status === "inactivo"
-                              ? "destructive"
-                              : project.status === "evaluacion"
-                                ? "warning"
-                                : "outline"
-                      }
-                    >
-                      {project.status === "activo"
-                        ? "Activo"
-                        : project.status === "finalizado"
-                          ? "Finalizado"
-                          : project.status === "inactivo"
-                            ? "Inactivo"
-                            : project.status === "evaluacion"
-                              ? "En Evaluación"
-                              : "En Formulación"}
+                    <Badge variant={getBadgeVariant(project.estado)}>
+                      {project.estado}
                     </Badge>
                   </TableCell>
-                  <TableCell>{project.teacher}</TableCell>
-                  <TableCell>{project.createdAt}</TableCell>
+                  {/*<TableCell>{project.creador}</TableCell>*/}
+                  <TableCell>
+                    {new Date(project.createdAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -173,13 +189,19 @@ export function ProjectTable({ searchTerm, filterArea, filterStatus, filterInsti
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/projects/${project.id}`} className="flex items-center cursor-pointer">
+                          <Link
+                            href={`/projects/${project._id}`}
+                            className="flex items-center cursor-pointer"
+                          >
                             <Eye className="mr-2 h-4 w-4" />
                             <span>Ver detalles</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/projects/${project.id}/edit`} className="flex items-center cursor-pointer">
+                          <Link
+                            href={`/projects/${project._id}/edit`}
+                            className="flex items-center cursor-pointer"
+                          >
                             <Pencil className="mr-2 h-4 w-4" />
                             <span>Editar</span>
                           </Link>
@@ -202,5 +224,5 @@ export function ProjectTable({ searchTerm, filterArea, filterStatus, filterInsti
         </Table>
       </div>
     </Card>
-  )
+  );
 }

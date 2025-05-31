@@ -1,12 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 interface Estudiante {
   _id: string;
   nombre: string;
   apellido: string;
   identificacion: string;
+  institucion: string;
   grado: string;
 }
 
@@ -19,7 +29,10 @@ const TeamMembersForm: React.FC<TeamMembersFormProps> = ({
 }) => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [seleccionados, setSeleccionados] = useState<Estudiante[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchEstudiantes = async () => {
@@ -34,9 +47,15 @@ const TeamMembersForm: React.FC<TeamMembersFormProps> = ({
           }
         );
         if (!response.ok) {
-          console.error("Error fetching estudiantes:", response.status, response.statusText);
+          console.error(
+            "Error fetching estudiantes:",
+            response.status,
+            response.statusText
+          );
           setEstudiantes([]);
-          setErrorMessage(`Error al obtener estudiantes: ${response.status} ${response.statusText}`);
+          setErrorMessage(
+            `Error al obtener estudiantes: ${response.status} ${response.statusText}`
+          );
           return;
         }
         const data = await response.json();
@@ -58,6 +77,7 @@ const TeamMembersForm: React.FC<TeamMembersFormProps> = ({
 
   useEffect(() => {
     onSeleccionChange(seleccionados);
+    setInputValue(seleccionados.map((e) => e.nombre).join(", "));
   }, [seleccionados]);
 
   const toggleSeleccion = (estudiante: Estudiante) => {
@@ -69,22 +89,34 @@ const TeamMembersForm: React.FC<TeamMembersFormProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {errorMessage && (
         <div className="text-red-500">{errorMessage}</div>
       )}
-      {estudiantes.map((estudiante) => (
-        <div key={estudiante._id} className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={seleccionados.some((e) => e._id === estudiante._id)}
-            onChange={() => toggleSeleccion(estudiante)}
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Input
+            ref={inputRef}
+            value={inputValue}
+            placeholder="Seleccione miembros del equipo..."
+            className="w-[300px]"
+            onClick={() => setOpen(true)}
           />
-          <span>
-            {estudiante.nombre} {estudiante.apellido} - {estudiante.grado}
-          </span>
-        </div>
-      ))}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel>Miembros del equipo</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {estudiantes.map((estudiante) => (
+            <DropdownMenuCheckboxItem
+              key={estudiante._id}
+              checked={seleccionados.some((e) => e._id === estudiante._id)}
+              onCheckedChange={() => toggleSeleccion(estudiante)}
+            >
+              {estudiante.nombre} {estudiante.apellido}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
