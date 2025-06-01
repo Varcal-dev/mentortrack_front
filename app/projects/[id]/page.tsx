@@ -1,30 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { ProjectDetails } from "@/components/project-details"
-import { ProjectTeam } from "@/components/project-team"
-import { ProjectMilestones } from "@/components/project-milestones"
-import { ProjectFiles } from "@/components/project-files"
-import { ProjectStatusHistory } from "@/components/project-status-history"
-import { ArrowLeft, FileDown, Pencil, Plus } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ProjectDetails } from "@/components/project-details";
+import { ProjectTeam } from "@/components/project-team";
+import { ProjectMilestones } from "@/components/project-milestones";
+import { ProjectFiles } from "@/components/project-files";
+import { ProjectStatusHistory } from "@/components/project-status-history";
+import { ArrowLeft, FileDown, Pencil, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ProjectPage({ params }: { params: { id: string } }) {
-  const [currentStatus, setCurrentStatus] = useState("activo")
+  //const [currentStatus, setCurrentStatus] = useState("activo")
+  const [project, setProject] = useState<any>(null);
+  const [currentStatus, setCurrentStatus] = useState("");
+  const router = useRouter();
 
-  // Simulación de datos del proyecto
-  const project = {
-    id: params.id,
-    title: "Impacto de la Contaminación en Ecosistemas Locales",
-    area: "Ciencias",
-    institution: "Colegio San José",
-    status: currentStatus,
-    createdAt: "2023-05-15",
-    teacher: "Prof. María González",
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `http://localhost:5000/api/proyectos/${params.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Error al obtener proyecto");
+
+        const data = await res.json();
+        setProject(data);
+        console.log("Datos: ", data);
+        setCurrentStatus(data.estado.toLowerCase()); // Asegúrate de que el estado sea minúscula
+      } catch (error) {
+        console.error(error);
+        router.push("/projects"); // Redirigir si no existe el proyecto
+      }
+    };
+
+    fetchProject();
+  }, [params.id, router]);
+
+  if (!project) {
+    return <div className="p-8">Cargando proyecto...</div>;
   }
 
   return (
@@ -37,39 +68,42 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
             </Link>
           </Button>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">{project.title}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              {project.titulo}
+            </h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>{project.area}</span>
               <span>•</span>
-              <span>{project.institution}</span>
+              <span>{project.institucion.nombre}</span>
               <span>•</span>
               <Badge
                 variant={
                   currentStatus === "activo"
                     ? "default"
                     : currentStatus === "finalizado"
-                      ? "success"
-                      : currentStatus === "inactivo"
-                        ? "destructive"
-                        : currentStatus === "evaluacion"
-                          ? "warning"
-                          : "outline"
+                    ? "success"
+                    : currentStatus === "inactivo"
+                    ? "destructive"
+                    : currentStatus === "evaluacion"
+                    ? "warning"
+                    : currentStatus === "en_formulacion"
+                    ? "outline"
+                    : "secondary"
                 }
               >
-                {currentStatus === "activo"
-                  ? "Activo"
-                  : currentStatus === "finalizado"
-                    ? "Finalizado"
-                    : currentStatus === "inactivo"
-                      ? "Inactivo"
-                      : currentStatus === "evaluacion"
-                        ? "En Evaluación"
-                        : "En Formulación"}
+                {{
+                  activo: "Activo",
+                  finalizado: "Finalizado",
+                  inactivo: "Inactivo",
+                  evaluacion: "En Evaluación",
+                  en_formulacion: "En Formulación",
+                }[currentStatus] || "Desconocido"}
               </Badge>
             </div>
           </div>
         </div>
 
+        {/* Botones */}
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" className="gap-1">
             <FileDown className="h-4 w-4" /> Exportar PDF
@@ -97,49 +131,59 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         </TabsList>
 
         <TabsContent value="details">
-          <ProjectDetails projectId={params.id} />
+          {project && <ProjectDetails project={project} />}
         </TabsContent>
 
         <TabsContent value="team">
-          <ProjectTeam projectId={params.id} />
+          {project && <ProjectTeam project={project} />}
         </TabsContent>
 
         <TabsContent value="milestones">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Avances del Proyecto</CardTitle>
-                <CardDescription>Registro de hitos y progreso del proyecto</CardDescription>
-              </div>
-              <Button asChild>
-                <Link href={`/projects/${params.id}/milestones/new`}>
-                  <Plus className="h-4 w-4 mr-2" /> Nuevo Avance
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <ProjectMilestones projectId={params.id} />
-            </CardContent>
-          </Card>
+          {project && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Avances del Proyecto</CardTitle>
+                  <CardDescription>
+                    Registro de hitos y progreso del proyecto
+                  </CardDescription>
+                </div>
+                <Button asChild>
+                  <Link href={`/projects/${project._id}/milestones/new`}>
+                    <Plus className="h-4 w-4 mr-2" /> Nuevo Avance
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <ProjectMilestones project={project} />
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="files">
-          <Card>
-            <CardHeader>
-              <CardTitle>Archivos y Evidencias</CardTitle>
-              <CardDescription>Documentos y fotografías asociadas al proyecto</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProjectFiles projectId={params.id} />
-            </CardContent>
-          </Card>
+          {project && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Archivos y Evidencias</CardTitle>
+                <CardDescription>
+                  Documentos y fotografías asociadas al proyecto
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProjectFiles project={project} />
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="status">
           <Card>
             <CardHeader>
               <CardTitle>Historial de Estado</CardTitle>
-              <CardDescription>Cambios de estado del proyecto y observaciones</CardDescription>
+              <CardDescription>
+                Cambios de estado del proyecto y observaciones
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ProjectStatusHistory
@@ -152,5 +196,5 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -5,10 +5,10 @@ import { FileText, ImageIcon, Download, Eye } from "lucide-react"
 import Link from "next/link"
 
 interface ProjectMilestonesProps {
-  projectId: string
+  project: any
 }
 
-export function ProjectMilestones({ projectId }: ProjectMilestonesProps) {
+export function ProjectMilestones({ project }: ProjectMilestonesProps) {
   // Simulación de datos de avances
   const milestones = [
     {
@@ -77,7 +77,7 @@ export function ProjectMilestones({ projectId }: ProjectMilestonesProps) {
                 </div>
               </div>
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/projects/${projectId}/milestones/${milestone.id}`}>
+                <Link href={`/projects/${project}/milestones/${milestone.id}`}>
                   <Eye className="h-4 w-4 mr-2" /> Ver Detalle
                 </Link>
               </Button>

@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { FileText, ImageIcon, Download, Search } from "lucide-react"
 
 interface ProjectFilesProps {
-  projectId: string
+  project: any
 }
 
-export function ProjectFiles({ projectId }: ProjectFilesProps) {
+export function ProjectFiles({ project }: ProjectFilesProps) {
   const [searchDocs, setSearchDocs] = useState("")
   const [searchImages, setSearchImages] = useState("")
 
