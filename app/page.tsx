@@ -8,17 +8,20 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <header className="bg-primary text-primary-foreground py-6">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Sistema de Gestión de Proyectos Escolares</h1>
-          <p className="mt-2">Plataforma para el registro y control de proyectos de investigación</p>
+          <h1 className="text-3xl font-bold">MentorTrack</h1>
+          <p className="mt-2">
+            Plataforma inteligente para el seguimiento y gestión de proyectos escolares de investigación
+          </p>
         </div>
       </header>
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Bienvenido al Sistema de Gestión de Proyectos</h2>
+          <h2 className="text-2xl font-bold mb-6">Bienvenido a MentorTrack</h2>
           <p className="mb-4">
-            Esta plataforma permite a estudiantes, docentes y coordinadores registrar y dar seguimiento a proyectos
-            escolares de investigación, facilitando la documentación de avances, hitos y evidencias asociadas.
+            MentorTrack es una plataforma innovadora que permite a estudiantes, docentes y coordinadores registrar y dar
+            seguimiento integral a proyectos escolares de investigación, facilitando la documentación de avances, hitos
+            y evidencias asociadas de manera eficiente y organizada.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
@@ -41,7 +44,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="text-sm">
-                Creación y gestión de cuentas para estudiantes, docentes y coordinadores.
+                Administración completa de cuentas para estudiantes, docentes y coordinadores con roles específicos.
               </CardDescription>
             </CardContent>
           </Card>
@@ -53,7 +56,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="text-sm">
-                Creación y gestión de proyectos escolares con toda la información necesaria.
+                Creación y gestión integral de proyectos escolares con seguimiento detallado de cada etapa.
               </CardDescription>
             </CardContent>
           </Card>
@@ -65,7 +68,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="text-sm">
-                Registro de hitos, avances y evidencias para cada proyecto escolar.
+                Registro detallado de hitos, avances y evidencias con documentación multimedia completa.
               </CardDescription>
             </CardContent>
           </Card>
@@ -77,7 +80,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="text-sm">
-                Generación de reportes en PDF y búsqueda avanzada de proyectos.
+                Generación automática de reportes en PDF y herramientas de búsqueda avanzada de proyectos.
               </CardDescription>
             </CardContent>
           </Card>
@@ -86,7 +89,7 @@ export default function Home() {
 
       <footer className="bg-muted py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Sistema de Gestión de Proyectos Escolares
+          &copy; {new Date().getFullYear()} MentorTrack - Sistema de Gestión de Proyectos Escolares
         </div>
       </footer>
     </div>

@@ -13,20 +13,56 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 
+
 export default function NewMilestonePage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const [formData, setFormData] = useState({
+  titulo: "",
+  fecha: "",
+  descripcion: "",
+  documentos: [] as File[],
+  fotos: [] as File[],
+})
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    // Simulación de creación de avance
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push(`/projects/${params.id}`)
-    }, 1000)
+  try {
+    const data = new FormData();
+    data.append("proyecto", params.id);
+    data.append("fecha", formData.fecha);
+    data.append("descripcion", formData.descripcion);
+
+    formData.documentos.forEach((file) => {
+      data.append("documentos", file);
+    });
+
+    formData.fotos.forEach((file) => {
+      data.append("fotos", file);
+    });
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/avances`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: data,
+    });
+
+    if (!res.ok) throw new Error("Error al guardar el avance");
+
+    router.push(`/projects/${params.id}`);
+  } catch (error) {
+    console.error(error);
+    alert("Hubo un error al guardar el avance.");
+  } finally {
+    setIsLoading(false);
   }
+};
+
+  
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -48,22 +84,35 @@ export default function NewMilestonePage({ params }: { params: { id: string } })
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Título del Avance</Label>
-              <Input id="title" placeholder="Ej: Recolección de datos inicial" required />
+              <Input
+  id="title"
+  placeholder="Ej: Recolección de datos inicial"
+  required
+  value={formData.titulo}
+  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+/>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="date">Fecha</Label>
-              <Input id="date" type="date" required />
+              <Input
+  id="date"
+  type="date"
+  required
+  value={formData.fecha}
+  onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+/>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Descripción</Label>
               <Textarea
-                id="description"
-                placeholder="Describe detalladamente el avance realizado"
-                className="min-h-[150px]"
-                required
-              />
+  id="description"
+  required
+  className="min-h-[150px]"
+  value={formData.descripcion}
+  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+/>
             </div>
 
             <div className="space-y-2">

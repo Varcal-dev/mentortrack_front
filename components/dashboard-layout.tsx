@@ -98,7 +98,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 onClick={() => setOpen(false)}
               >
                 <FileText className="h-6 w-6" />
-                <span>Sistema de Proyectos</span>
+                <span>MentorTrack</span>
               </Link>
               <div className="my-4 h-[1px] w-full bg-border" />
               {navItems.map((item) => (
@@ -118,7 +118,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           className="flex items-center gap-2 text-lg font-semibold"
         >
           <FileText className="h-6 w-6" />
-          <span className="hidden md:inline-block">Sistema de Proyectos</span>
+          <span className="hidden md:inline-block">MentorTrack</span>
         </Link>
         <div className="flex flex-1 items-center gap-4 md:gap-2 lg:gap-4 justify-end">
           <ThemeToggle />
