@@ -66,36 +66,36 @@ MentorTrack es una aplicación web moderna desarrollada con Next.js que permite 
 ### Pasos de instalación
 
 1. **Clonar el repositorio**
-\`\`\`bash
-git clone https://github.com/tu-usuario/mentortrack.git
+```bash
+git clone https://github.com/Varcal-dev/mentortrack_front
 cd mentortrack
-\`\`\`
+```
 
 2. **Instalar dependencias**
-\`\`\`bash
+```bash
 npm install
 # o
 yarn install
-\`\`\`
+```
 
 3. **Configurar variables de entorno**
-\`\`\`bash
+```bash
 cp .env.example .env.local
-\`\`\`
+```
 
 4. **Ejecutar en modo desarrollo**
-\`\`\`bash
+```bash
 npm run dev
 # o
 yarn dev
-\`\`\`
+```
 
 5. **Abrir en el navegador**
 Visita \`http://localhost:3000\` para ver la aplicación.
 
 ## 📁 Estructura del Proyecto
 
-\`\`\`
+```
 mentortrack/
 ├── app/                    # Rutas y páginas (App Router)
 │   ├── dashboard/         # Dashboard principal
@@ -110,7 +110,7 @@ mentortrack/
 │   └── theme-provider.tsx
 ├── lib/                  # Utilidades y configuraciones
 └── public/              # Archivos estáticos
-\`\`\`
+```
 
 ## 👥 Roles de Usuario
 
@@ -141,13 +141,13 @@ mentortrack/
 
 ## 🔧 Scripts Disponibles
 
-\`\`\`bash
+```bash
 npm run dev          # Ejecutar en modo desarrollo
 npm run build        # Construir para producción
 npm run start        # Ejecutar versión de producción
 npm run lint         # Ejecutar linter
 npm run type-check   # Verificar tipos de TypeScript
-\`\`\`
+```
 
 ## 📈 Próximas Características
 
